@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: playground
+  datasource:
+    url: jdbc:mysql://localhost:3306/playground?createDatabaseIfNotExist=true
+    username: root
+    password: MyPassword!
