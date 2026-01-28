@@ -39,6 +39,9 @@ public class User {
     )
     private Set<Tag> tags = new HashSet<>();
 
+    @OneToOne(mappedBy = "user")
+    private Profile profile;
+
     public void addAddress(Address address) {
         addresses.add(address);
         address.setUser(this);
@@ -53,5 +56,10 @@ public class User {
         var tag = new Tag(name);
         tags.add(tag);
         tag.getUsers().add(this);
+    }
+
+    public void addProfile(Profile profile) {
+        this.profile = profile;
+        profile.setUser(this);
     }
 }
