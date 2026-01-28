@@ -14,11 +14,11 @@ import java.util.Set;
 @Setter
 @Getter
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "playground")
+@ToString
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, name = "name")
@@ -44,7 +44,6 @@ public class User {
 
     @ManyToMany
     @JoinTable(
-            schema = "playground",
             name = "wishlist",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
