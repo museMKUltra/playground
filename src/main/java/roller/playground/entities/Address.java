@@ -25,4 +25,8 @@ public class Address {
 
     @Column(name = "zip")
     private String zip;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }
