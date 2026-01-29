@@ -1,9 +1,12 @@
 package roller.playground.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Setter
 @Getter
 @Entity
@@ -26,7 +29,8 @@ public class Address {
     @Column(name = "zip")
     private String zip;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 }
