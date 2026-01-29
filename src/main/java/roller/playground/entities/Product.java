@@ -1,18 +1,20 @@
 package roller.playground.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "products")
 @Getter
 @Setter
 public class Product {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -25,7 +27,12 @@ public class Product {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    public void setCategory(Category category) {
+        this.category = category;
+        category.getProducts().add(this);
+    }
 }
