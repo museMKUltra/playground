@@ -49,4 +49,8 @@ public class ProductService {
         productRepository.findAll().forEach(product -> user.addWishlist(product));
         userRepository.save(user);
     }
+
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
 }
