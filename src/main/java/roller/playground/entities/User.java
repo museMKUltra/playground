@@ -40,8 +40,8 @@ public class User {
     )
     private Set<Tag> tags = new HashSet<>();
 
-    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Profile profile;
+//    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+//    private Profile profile;
 
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
@@ -67,10 +67,10 @@ public class User {
         tag.getUsers().add(this);
     }
 
-    public void addProfile(Profile profile) {
-        this.profile = profile;
-        profile.setUser(this);
-    }
+//    public void addProfile(Profile profile) {
+//        this.profile = profile;
+//        profile.setUser(this);
+//    }
 
     public void addWishlist(Product product) {
         wishlist.add(product);

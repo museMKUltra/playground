@@ -29,7 +29,7 @@ public class UserService {
                 .state("RM")
                 .build();
         user.addAddress(address);
-        user.addProfile(profile);
+//        user.addProfile(profile);
         userRepository.save(user);
     }
 
@@ -53,5 +53,12 @@ public class UserService {
     public void fetchUser() {
         var user = userRepository.findByEmail("emial2").orElseThrow();
         System.out.println(user);
+    }
+
+    public void fetchUsers() {
+        for (User user : userRepository.findAllWithAddresses()) {
+            System.out.println(user);
+            user.getAddresses().forEach(System.out::println);
+        }
     }
 }
