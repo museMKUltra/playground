@@ -15,10 +15,10 @@ import java.util.Set;
 @Getter
 @Entity
 @Table(name = "users", schema = "playground")
-@ToString
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(nullable = false, name = "name")
@@ -74,5 +74,13 @@ public class User {
 
     public void addWishlist(Product product) {
         wishlist.add(product);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" +
+                "id = " + id + ", " +
+                "name = " + name + ", " +
+                "email = " + email + ")";
     }
 }
