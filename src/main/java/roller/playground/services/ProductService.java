@@ -53,4 +53,9 @@ public class ProductService {
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
+
+    @Transactional
+    public void updateProductPrice() {
+        productRepository.updatePriceByCategoryId(BigDecimal.valueOf(10), (byte) 1);
+    }
 }
