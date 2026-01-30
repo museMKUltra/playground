@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import roller.playground.dtos.ProductSummary;
+import roller.playground.entities.Category;
 import roller.playground.entities.Product;
 
 import java.math.BigDecimal;
@@ -19,4 +21,6 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     @Modifying
     @Query("update Product p set p.price = :newPrice where p.category.id = :categoryId")
     void updatePriceByCategoryId(@Param("newPrice") BigDecimal newPrice, @Param("categoryId") Byte categoryId);
+
+    List<ProductSummary> findByCategory(Category category);
 }
