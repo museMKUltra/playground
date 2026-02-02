@@ -12,6 +12,7 @@ import roller.playground.repositories.ProductRepository;
 import roller.playground.repositories.UserRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -83,5 +84,10 @@ public class ProductService {
         var example = Example.of(product, matcher);
         var products = productRepository.findAll(example);
         System.out.println(products);
+    }
+
+    public void fetchProductsByCriteria() {
+        var products = productRepository.findProductsByCriteria("prod", BigDecimal.valueOf(1), null);
+        products.forEach(System.out::println);
     }
 }
