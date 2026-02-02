@@ -71,7 +71,7 @@ public class UserService {
         profiles.forEach(p -> {
             System.out.println(p);
             System.out.println(p.getId());
-            System.out.println(p.getUser().getEmail());
+            System.out.println(p.getEmail());
         });
     }
 }
