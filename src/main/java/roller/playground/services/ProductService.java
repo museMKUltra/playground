@@ -10,7 +10,6 @@ import roller.playground.repositories.ProductRepository;
 import roller.playground.repositories.UserRepository;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -62,6 +61,12 @@ public class ProductService {
 
     public void fetchProducts() {
         var products = productRepository.findByCategory(new Category((byte) 1));
+        System.out.println(products);
+    }
+
+    @Transactional
+    public void fetchProductsBetweenPrices() {
+        var products = productRepository.findProducts(BigDecimal.valueOf(10), BigDecimal.valueOf(20));
         System.out.println(products);
     }
 }
