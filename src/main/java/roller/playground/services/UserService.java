@@ -6,30 +6,33 @@ import org.springframework.transaction.annotation.Transactional;
 import roller.playground.entities.Address;
 import roller.playground.entities.Profile;
 import roller.playground.entities.User;
+import roller.playground.repositories.ProfileRepository;
 import roller.playground.repositories.UserRepository;
 
 @AllArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
 
     public void createUser() {
         var profile = Profile.builder()
-                .bio("bio3")
+                .bio("bio20")
+                .loyaltyPoints(20)
                 .build();
         var user = User.builder()
-                .name("John Doe3")
-                .email("emial")
+                .name("John Doe20")
+                .email("email20")
                 .password("password")
                 .build();
         var address = Address.builder()
-                .street("Via Roma 3")
-                .zip("00300")
+                .street("Via Roma 20")
+                .zip("20")
                 .city("Roma")
                 .state("RM")
                 .build();
         user.addAddress(address);
-//        user.addProfile(profile);
+        user.addProfile(profile);
         userRepository.save(user);
     }
 
@@ -60,5 +63,15 @@ public class UserService {
             System.out.println(user);
             user.getAddresses().forEach(System.out::println);
         }
+    }
+
+    @Transactional
+    public void fetchProfile() {
+        var profiles = profileRepository.findProfilesByLoyaltyPointsGreaterThan(2);
+        profiles.forEach(p -> {
+            System.out.println(p);
+            System.out.println(p.getId());
+            System.out.println(p.getUser().getEmail());
+        });
     }
 }
