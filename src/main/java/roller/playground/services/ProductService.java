@@ -1,6 +1,8 @@
 package roller.playground.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roller.playground.entities.Category;
@@ -67,6 +69,19 @@ public class ProductService {
     @Transactional
     public void fetchProductsBetweenPrices() {
         var products = productRepository.findProducts(BigDecimal.valueOf(10), BigDecimal.valueOf(20));
+        System.out.println(products);
+    }
+
+    public void fetchProductsByExample() {
+        var product = Product.builder()
+                .name("product")
+                .build();
+        var matcher = ExampleMatcher.matching()
+                .withIncludeNullValues()
+                .withIgnorePaths("id", "description")
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        var example = Example.of(product, matcher);
+        var products = productRepository.findAll(example);
         System.out.println(products);
     }
 }
