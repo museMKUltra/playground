@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
+import roller.playground.entities.Category;
 import roller.playground.entities.Product;
 
 import java.math.BigDecimal;
@@ -39,6 +40,22 @@ public class ProductCriteriaRepositoryImpl implements ProductCriteriaRepository 
             // price <= maxPrice
             predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
         }
+        cq.select(root).where(predicates.toArray(Predicate[]::new));
+
+        return entityManager.createQuery(cq).getResultList();
+    }
+
+    @Override
+    public List<Product> findProductsByCategory(Category category) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+        Root<Product> root = cq.from(Product.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (category != null) {
+            predicates.add(cb.equal(root.get("category"), category));
+        }
+
         cq.select(root).where(predicates.toArray(Predicate[]::new));
 
         return entityManager.createQuery(cq).getResultList();

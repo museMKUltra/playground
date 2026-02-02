@@ -13,7 +13,6 @@ import roller.playground.repositories.UserRepository;
 import roller.playground.repositories.specifications.ProductSpec;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -92,7 +91,7 @@ public class ProductService {
         products.forEach(System.out::println);
     }
 
-    public void fetchProductsBySpecifications(String name, BigDecimal minPrice, BigDecimal maxPrice) {
+    public void fetchProductsBySpecifications(String name, BigDecimal minPrice, BigDecimal maxPrice, Category category) {
         Specification<Product> spec = Specification.allOf();
 
         if (name != null) {
@@ -104,8 +103,16 @@ public class ProductService {
         if (maxPrice != null) {
             spec = spec.and(ProductSpec.hasPriceLessThanOrEqualTo(maxPrice));
         }
+        if (category != null) {
+            spec = spec.and(ProductSpec.hasCategory(category));
+        }
 
         productRepository.findAll(spec).forEach(System.out::println);
+    }
+
+    public void findProductsByCategory() {
+        var products = productRepository.findProductsByCategory(new Category((byte) 1));
+        products.forEach(System.out::println);
     }
 
     public void fetchSortedProducts() {
