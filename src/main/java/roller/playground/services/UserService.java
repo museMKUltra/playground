@@ -67,7 +67,7 @@ public class UserService {
 
     @Transactional
     public void fetchProfile() {
-        var profiles = profileRepository.findProfilesByLoyaltyPointsGreaterThan(2);
+        var profiles = profileRepository.findByLoyaltyPointsGreaterThanOrderByUserEmail(2);
         profiles.forEach(p -> {
             System.out.println(p);
             System.out.println(p.getId());
