@@ -3,6 +3,7 @@ package roller.playground.services;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roller.playground.entities.Category;
@@ -10,9 +11,9 @@ import roller.playground.entities.Product;
 import roller.playground.repositories.CategoryRepository;
 import roller.playground.repositories.ProductRepository;
 import roller.playground.repositories.UserRepository;
+import roller.playground.repositories.specifications.ProductSpec;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -89,5 +90,21 @@ public class ProductService {
     public void fetchProductsByCriteria() {
         var products = productRepository.findProductsByCriteria("prod", BigDecimal.valueOf(1), null);
         products.forEach(System.out::println);
+    }
+
+    public void fetchProductsBySpecifications(String name, BigDecimal minPrice, BigDecimal maxPrice) {
+        Specification<Product> spec = Specification.allOf();
+
+        if (name != null) {
+            spec = spec.and(ProductSpec.hasName(name));
+        }
+        if (minPrice != null) {
+            spec = spec.and(ProductSpec.hasPriceGreaterThanOrEqualTo(minPrice));
+        }
+        if (maxPrice != null) {
+            spec = spec.and(ProductSpec.hasPriceLessThanOrEqualTo(maxPrice));
+        }
+
+        productRepository.findAll(spec).forEach(System.out::println);
     }
 }
