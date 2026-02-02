@@ -3,6 +3,7 @@ package roller.playground.services;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,5 +107,13 @@ public class ProductService {
         }
 
         productRepository.findAll(spec).forEach(System.out::println);
+    }
+
+    public void fetchSortedProducts() {
+        var sort = Sort.by("name").and(
+                Sort.by("price").descending()
+        );
+
+        productRepository.findAll(sort).forEach(System.out::println);
     }
 }
