@@ -3,7 +3,6 @@ package roller.playground.controllers;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -60,7 +59,7 @@ public class CartsController {
             return ResponseEntity.badRequest().build();
         }
 
-        var cartItem = cart.getCartItems()
+        var cartItem = cart.getItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst()
@@ -72,7 +71,7 @@ public class CartsController {
                     .product(product)
                     .quantity(1)
                     .build();
-            cart.getCartItems().add(cartItem);
+            cart.getItems().add(cartItem);
         } else {
             cartItem.incrementQuantity();
         }
@@ -81,6 +80,17 @@ public class CartsController {
 
         var dto = cartMapper.toDto(cartItem);
         return ResponseEntity.created(null).body(dto);
+    }
+
+    @GetMapping("/{cartId}")
+    public ResponseEntity<CartDto> getCart(@PathVariable UUID cartId) {
+        var cart = cartRepository.getCartWithProducts(cartId).orElse(null);
+
+        if (cart == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(cartMapper.toDto(cart));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
