@@ -2,6 +2,7 @@ package roller.playground.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import roller.playground.dtos.CartDto;
 import roller.playground.dtos.CartItemDto;
 import roller.playground.dtos.CartItemRequest;
+import roller.playground.dtos.UpdateCartItemRequest;
 import roller.playground.entities.Cart;
 import roller.playground.entities.CartItem;
 import roller.playground.mappers.CartMapper;
@@ -91,6 +93,37 @@ public class CartsController {
         }
 
         return ResponseEntity.ok(cartMapper.toDto(cart));
+    }
+
+    @PutMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<?> updateCartItemQuantity(
+            @Valid @RequestBody UpdateCartItemRequest request,
+            @PathVariable("cartId") UUID cartId,
+            @PathVariable("productId") Long productId
+    ) {
+        var cart = cartRepository.getCartWithProducts(cartId).orElse(null);
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "Cart not found")
+            );
+        }
+
+        var cartItem = cart
+                .getItems()
+                .stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+        if (cartItem == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "Product not found in the cart")
+            );
+        }
+
+        cartItem.setQuantity(request.getQuantity());
+        cartRepository.save(cart);
+
+        return ResponseEntity.ok(cartMapper.toDto(cartItem));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
