@@ -27,6 +27,32 @@ public class Cart {
     private Set<CartItem> items = new HashSet<>();
 
     public BigDecimal getTotalPrice() {
-        return items.stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return items.stream()
+                .map(CartItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public CartItem getItem(Long productId) {
+        return items.stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public CartItem addItem(Product product) {
+        var cartItem = getItem(product.getId());
+
+        if (cartItem == null) {
+            cartItem = CartItem.builder()
+                    .cart(this)
+                    .product(product)
+                    .quantity(1)
+                    .build();
+            items.add(cartItem);
+        } else {
+            cartItem.incrementQuantity();
+        }
+
+        return cartItem;
     }
 }
