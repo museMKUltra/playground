@@ -107,6 +107,24 @@ public class CartsController {
         return ResponseEntity.ok(cartMapper.toDto(cartItem));
     }
 
+    @DeleteMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<?> deleteCartItem(
+            @PathVariable("cartId") UUID cartId,
+            @PathVariable("productId") Long productId
+    ) {
+        var cart = cartRepository.getCartWithProducts(cartId).orElse(null);
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "Cart not found")
+            );
+        }
+
+        cart.removeItem(productId);
+        cartRepository.save(cart);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException exception) {
         var errors = new HashMap<String, String>();
