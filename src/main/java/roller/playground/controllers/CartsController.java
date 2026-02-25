@@ -12,7 +12,6 @@ import roller.playground.dtos.CartItemDto;
 import roller.playground.dtos.CartItemRequest;
 import roller.playground.dtos.UpdateCartItemRequest;
 import roller.playground.entities.Cart;
-import roller.playground.entities.CartItem;
 import roller.playground.mappers.CartMapper;
 import roller.playground.repositories.CartRepository;
 import roller.playground.repositories.ProductRepository;
@@ -120,6 +119,19 @@ public class CartsController {
         }
 
         cart.removeItem(productId);
+        cartRepository.save(cart);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{cartId}/items")
+    public ResponseEntity<?> deleteCartItems(@PathVariable("cartId") UUID cartId) {
+        var cart = cartRepository.findById(cartId).orElse(null);
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        cart.clearItems();
         cartRepository.save(cart);
 
         return ResponseEntity.noContent().build();
