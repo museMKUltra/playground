@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import roller.playground.dtos.UserSummary;
 import roller.playground.entities.User;
 
@@ -20,4 +21,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     @Query("select u.id as id, u.email as email from User u where u.profile.loyaltyPoints > :points order by u.email")
     List<UserSummary> findByLoyaltyPoints(@Param("points") Integer points);
+
+    boolean existsByEmail(String email);
 }
