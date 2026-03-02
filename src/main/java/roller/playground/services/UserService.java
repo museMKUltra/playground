@@ -1,6 +1,9 @@
 package roller.playground.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roller.playground.entities.Address;
@@ -9,9 +12,11 @@ import roller.playground.entities.User;
 import roller.playground.repositories.ProfileRepository;
 import roller.playground.repositories.UserRepository;
 
+import java.util.Collections;
+
 @AllArgsConstructor
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
 
@@ -73,5 +78,18 @@ public class UserService {
             System.out.println(p.getId());
             System.out.println(p.getEmail());
         });
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        var user = userRepository.findByEmail(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found")
+        );
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                Collections.emptyList()
+        );
     }
 }
