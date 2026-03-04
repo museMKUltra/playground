@@ -7,13 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import roller.playground.dtos.JwtResponse;
 import roller.playground.dtos.LoginRequest;
 import roller.playground.dtos.RegisterRequest;
+import roller.playground.dtos.UserDto;
 import roller.playground.mappers.UserMapper;
 import roller.playground.repositories.UserRepository;
+import roller.playground.services.JwtService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +30,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -45,13 +50,29 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(
+    public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
-        var authentication = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
-        authenticationManager.authenticate(authentication);
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
 
-        return ResponseEntity.ok().build();
+        var token = jwtService.generateToken(request.getEmail());
+
+        return ResponseEntity.ok(new JwtResponse(token));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> me() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var email = authentication.getPrincipal().toString();
+
+        var user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
