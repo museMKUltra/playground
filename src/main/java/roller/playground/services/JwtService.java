@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import roller.playground.entities.User;
 
 import java.util.Date;
 
@@ -14,21 +15,23 @@ public class JwtService {
     @Value("${spring.jwt.secret}")
     private String secret;
 
-    public String generateRefreshToken(String email) {
+    public String generateRefreshToken(User user) {
         final long tokenExpiration = 604800; // 7d
 
-        return generateToken(email, tokenExpiration);
+        return generateToken(user, tokenExpiration);
     }
 
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(User user) {
         final long tokenExpiration = 30; // 5m
 
-        return generateToken(email, tokenExpiration);
+        return generateToken(user, tokenExpiration);
     }
 
-    private String generateToken(String email, long tokenExpiration) {
+    private String generateToken(User user, long tokenExpiration) {
         return Jwts.builder()
-                .subject(email)
+                .subject(user.getId().toString())
+                .claim("name", user.getName())
+                .claim("email", user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
@@ -53,7 +56,7 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String getEmailFromToken(String token) {
-        return getClaims(token).getSubject();
+    public Long getUserIdFromToken(String token) {
+        return Long.valueOf(getClaims(token).getSubject());
     }
 }
