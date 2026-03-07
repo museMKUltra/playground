@@ -3,28 +3,24 @@ package roller.playground.services;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import roller.playground.config.JwtConfig;
 import roller.playground.entities.User;
 
 import java.util.Date;
 
 @Service
+@AllArgsConstructor
 public class JwtService {
-    @Value("${spring.jwt.secret}")
-    private String secret;
+    private final JwtConfig jwtConfig;
 
     public String generateRefreshToken(User user) {
-        final long tokenExpiration = 604800; // 7d
-
-        return generateToken(user, tokenExpiration);
+        return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
 
     public String generateAccessToken(User user) {
-        final long tokenExpiration = 30; // 5m
-
-        return generateToken(user, tokenExpiration);
+        return generateToken(user, jwtConfig.getAccessTokenExpiration());
     }
 
     private String generateToken(User user, long tokenExpiration) {
@@ -34,7 +30,7 @@ public class JwtService {
                 .claim("email", user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .signWith(jwtConfig.getSecretKey())
                 .compact();
     }
 
@@ -50,7 +46,7 @@ public class JwtService {
 
     private Claims getClaims(String token) {
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .verifyWith(jwtConfig.getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

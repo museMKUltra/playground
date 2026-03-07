@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import roller.playground.config.JwtConfig;
 import roller.playground.dtos.JwtResponse;
 import roller.playground.dtos.LoginRequest;
 import roller.playground.dtos.RegisterRequest;
@@ -33,6 +34,7 @@ public class AuthController {
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final JwtConfig jwtConfig;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -67,7 +69,7 @@ public class AuthController {
 
         var cookie = new Cookie("refreshToken", refreshToken);
         cookie.setPath("/auth/refresh");
-        cookie.setMaxAge(604800);
+        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         response.addCookie(cookie);
