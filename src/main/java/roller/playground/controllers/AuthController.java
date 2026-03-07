@@ -18,6 +18,7 @@ import roller.playground.dtos.JwtResponse;
 import roller.playground.dtos.LoginRequest;
 import roller.playground.dtos.RegisterRequest;
 import roller.playground.dtos.UserDto;
+import roller.playground.entities.Role;
 import roller.playground.mappers.UserMapper;
 import roller.playground.repositories.UserRepository;
 import roller.playground.services.JwtService;
@@ -48,6 +49,7 @@ public class AuthController {
 
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDto(user));
