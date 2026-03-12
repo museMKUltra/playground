@@ -56,7 +56,7 @@ class CheckoutController {
         orderRepository.save(order);
         cartRepository.delete(cart);
 
-        return ResponseEntity.ok().body(orderMapper.toDto(order));
+        return ResponseEntity.ok().body(orderMapper.toCheckoutDto(order));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

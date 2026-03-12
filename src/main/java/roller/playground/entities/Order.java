@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +29,7 @@ public class Order {
     private OrderStatus status;
 
     @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "total_price")
     private BigDecimal totalPrice;
@@ -47,5 +47,11 @@ public class Order {
                 .build();
         orderItems.add(orderItem);
         orderItem.setOrder(this);
+    }
+
+    public BigDecimal getTotalPrice() {
+        return orderItems.stream()
+                .map(OrderItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

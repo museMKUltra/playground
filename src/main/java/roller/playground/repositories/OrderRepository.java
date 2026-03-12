@@ -1,7 +1,10 @@
 package roller.playground.repositories;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import roller.playground.entities.Order;
 
-public interface OrderRepository extends CrudRepository<Order, Long> {
+import java.util.List;
+
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    List<Order> findAllByCustomerId(Long customerId);
 }
