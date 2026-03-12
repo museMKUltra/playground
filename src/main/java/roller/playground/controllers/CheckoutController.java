@@ -2,7 +2,6 @@ package roller.playground.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import roller.playground.dtos.CheckoutRequestDto;
 import roller.playground.entities.Order;
 import roller.playground.entities.OrderStatus;
+import roller.playground.mappers.OrderMapper;
 import roller.playground.repositories.CartRepository;
 import roller.playground.repositories.OrderRepository;
 
@@ -25,6 +25,7 @@ import java.util.Map;
 class CheckoutController {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
 
     @RequestMapping
     public ResponseEntity checkout(
@@ -53,8 +54,9 @@ class CheckoutController {
         });
 
         orderRepository.save(order);
+        cartRepository.delete(cart);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(orderMapper.toDto(order));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
