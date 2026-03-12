@@ -35,7 +35,7 @@ public class OrderService {
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var userId = (Long) authentication.getPrincipal();
-        if (!order.getCustomerId().equals(userId)) {
+        if (!order.getCustomer().getId().equals(userId)) {
             throw new BelongToOtherUserException();
         }
 

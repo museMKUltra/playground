@@ -3,7 +3,6 @@ package roller.playground.controllers;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +14,9 @@ import roller.playground.entities.OrderStatus;
 import roller.playground.mappers.OrderMapper;
 import roller.playground.repositories.CartRepository;
 import roller.playground.repositories.OrderRepository;
+import roller.playground.repositories.UserRepository;
+import roller.playground.services.AuthService;
+import roller.playground.services.CartService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,24 +28,29 @@ class CheckoutController {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final UserRepository userRepository;
+    private final AuthService authService;
+    private final CartService cartService;
 
     @RequestMapping
-    public ResponseEntity checkout(
+    public ResponseEntity<?> checkout(
             @Valid @RequestBody CheckoutRequestDto checkoutRequestDto
     ) {
         var cart = cartRepository.getCartWithProducts(checkoutRequestDto.getCartId()).orElse(null);
         if (cart == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", "Cart not found")
+            );
         }
-        cart.getItems().forEach(item -> {
-            System.out.println(item.getProduct().getName() + " - " + item.getQuantity());
-        });
 
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var userId = (Long) authentication.getPrincipal();
+        if (cart.getItems().isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", "Cart is empty")
+            );
+        }
 
         var order = Order.builder()
-                .customerId(userId)
+                .customer(authService.getCurrentUser())
                 .totalPrice(cart.getTotalPrice())
                 .status(OrderStatus.PENDING)
                 .build();
@@ -54,7 +61,7 @@ class CheckoutController {
         });
 
         orderRepository.save(order);
-        cartRepository.delete(cart);
+        cartService.deleteCartItems(cart.getId());
 
         return ResponseEntity.ok().body(orderMapper.toCheckoutDto(order));
     }

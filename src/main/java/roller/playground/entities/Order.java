@@ -21,8 +21,9 @@ public class Order {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "customer_id")
-    private Long customerId;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private User customer;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
