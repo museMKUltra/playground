@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import roller.playground.dtos.CheckoutRequestDto;
+import roller.playground.dtos.ErrorDto;
 import roller.playground.entities.Order;
 import roller.playground.entities.OrderStatus;
 import roller.playground.mappers.OrderMapper;
@@ -39,13 +40,13 @@ class CheckoutController {
         var cart = cartRepository.getCartWithProducts(checkoutRequestDto.getCartId()).orElse(null);
         if (cart == null) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "Cart not found")
+                    new ErrorDto("Cart not found")
             );
         }
 
         if (cart.getItems().isEmpty()) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "Cart is empty")
+                    new ErrorDto("Cart is empty")
             );
         }
 
