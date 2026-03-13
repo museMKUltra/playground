@@ -39,6 +39,21 @@ public class Order {
     @Builder.Default
     private Set<OrderItem> orderItems = new HashSet<>();
 
+    public static Order fromCart(Cart cart, User customer) {
+        var order = Order.builder()
+                .customer(customer)
+                .status(OrderStatus.PENDING)
+                .totalPrice(cart.getTotalPrice())
+                .build();
+
+        cart.getItems().forEach(item -> {
+            var product = item.getProduct();
+            order.addOrderItem(product, item.getQuantity(), product.getPrice(), item.getTotalPrice());
+        });
+
+        return order;
+    }
+
     public void addOrderItem(Product product, Integer quantity, BigDecimal unitPrice, BigDecimal totalPrice) {
         var orderItem = OrderItem.builder()
                 .product(product)

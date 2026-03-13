@@ -3,10 +3,7 @@ package roller.playground.controllers;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import roller.playground.dtos.OrderDto;
 import roller.playground.excpetions.BelongToOtherUserException;
 import roller.playground.excpetions.OrderNotFoundException;
@@ -15,20 +12,20 @@ import roller.playground.services.OrderService;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/orders")
 @AllArgsConstructor
 class OrdersController {
     private final OrderService orderService;
 
-    @RequestMapping
+    @GetMapping
     public ResponseEntity<List<OrderDto>> getOrders() {
         var orders = orderService.getOrders();
 
         return ResponseEntity.ok().body(orders);
     }
 
-    @RequestMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<OrderDto> getOrder(@PathVariable Long id) {
         var orderDto = orderService.getOrder(id);
 

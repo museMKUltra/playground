@@ -3,27 +3,26 @@ package roller.playground.controllers;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import roller.playground.dtos.CheckoutRequestDto;
+import roller.playground.dtos.CheckoutResponseDto;
 import roller.playground.dtos.ErrorDto;
-import roller.playground.entities.Order;
-import roller.playground.entities.OrderStatus;
+import roller.playground.excpetions.CartEmptyException;
+import roller.playground.excpetions.CartNotFoundException;
 import roller.playground.mappers.OrderMapper;
 import roller.playground.repositories.CartRepository;
 import roller.playground.repositories.OrderRepository;
 import roller.playground.repositories.UserRepository;
 import roller.playground.services.AuthService;
 import roller.playground.services.CartService;
+import roller.playground.services.CheckoutService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @AllArgsConstructor
-@Controller
+@RestController
 @RequestMapping("/checkout")
 class CheckoutController {
     private final CartRepository cartRepository;
@@ -32,39 +31,13 @@ class CheckoutController {
     private final UserRepository userRepository;
     private final AuthService authService;
     private final CartService cartService;
+    private final CheckoutService checkoutService;
 
-    @RequestMapping
-    public ResponseEntity<?> checkout(
+    @PostMapping
+    public CheckoutResponseDto checkout(
             @Valid @RequestBody CheckoutRequestDto checkoutRequestDto
     ) {
-        var cart = cartRepository.getCartWithProducts(checkoutRequestDto.getCartId()).orElse(null);
-        if (cart == null) {
-            return ResponseEntity.badRequest().body(
-                    new ErrorDto("Cart not found")
-            );
-        }
-
-        if (cart.getItems().isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    new ErrorDto("Cart is empty")
-            );
-        }
-
-        var order = Order.builder()
-                .customer(authService.getCurrentUser())
-                .totalPrice(cart.getTotalPrice())
-                .status(OrderStatus.PENDING)
-                .build();
-
-        cart.getItems().forEach(item -> {
-            var product = item.getProduct();
-            order.addOrderItem(product, item.getQuantity(), product.getPrice(), item.getTotalPrice());
-        });
-
-        orderRepository.save(order);
-        cartService.deleteCartItems(cart.getId());
-
-        return ResponseEntity.ok().body(orderMapper.toCheckoutDto(order));
+        return checkoutService.checkout(checkoutRequestDto.getCartId());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -75,5 +48,10 @@ class CheckoutController {
         });
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler({CartNotFoundException.class, CartEmptyException.class})
+    public ResponseEntity<ErrorDto> handleCartNotFound(Exception ex) {
+        return ResponseEntity.badRequest().body(new ErrorDto(ex.getMessage()));
     }
 }
