@@ -3,14 +3,14 @@ package roller.playground.controllers;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
+import roller.playground.dtos.ErrorDto;
 import roller.playground.dtos.OrderDto;
-import roller.playground.excpetions.BelongToOtherUserException;
 import roller.playground.excpetions.OrderNotFoundException;
 import roller.playground.services.OrderService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/orders")
@@ -23,24 +23,20 @@ class OrdersController {
         return orderService.getOrders();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> getOrder(@PathVariable Long id) {
-        var orderDto = orderService.getOrder(id);
-
-        return ResponseEntity.ok(orderDto);
+    @GetMapping("/{orderId}")
+    public OrderDto getOrder(@PathVariable("orderId") Long id) {
+        return orderService.getOrder(id);
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleOrderNotFound() {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Map.of("error", "Order not found")
-        );
+    public ResponseEntity<Void> handleOrderNotFound() {
+        return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(BelongToOtherUserException.class)
-    public ResponseEntity<Map<String, String>> handleBelongToOtherUser() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                Map.of("error", "Order belongs to other user")
-        );
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDto> handleBelongToOtherUser(Exception ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorDto(ex.getMessage()));
     }
 }

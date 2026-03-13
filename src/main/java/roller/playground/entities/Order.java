@@ -70,4 +70,8 @@ public class Order {
                 .map(OrderItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    public boolean isPlacedBy(User user) {
+        return this.customer.getId().equals(user.getId());
+    }
 }

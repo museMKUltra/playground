@@ -1,11 +1,9 @@
 package roller.playground.services;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import roller.playground.dtos.OrderDto;
-import roller.playground.entities.User;
-import roller.playground.excpetions.BelongToOtherUserException;
 import roller.playground.excpetions.OrderNotFoundException;
 import roller.playground.mappers.OrderMapper;
 import roller.playground.repositories.OrderRepository;
@@ -28,14 +26,15 @@ public class OrderService {
     }
 
     public OrderDto getOrder(Long id) {
-        var order = orderRepository.findById(id).orElse(null);
-        if (order == null) {
-            throw new OrderNotFoundException();
-        }
-
+        var order = orderRepository
+                .findById(id)
+                .orElseThrow(OrderNotFoundException::new);
         var user = authService.getCurrentUser();
-        if (!order.getCustomer().getId().equals(user.getId())) {
-            throw new BelongToOtherUserException();
+
+        if (!order.isPlacedBy(user)) {
+            throw new AccessDeniedException(
+                    "You don't have permission to access this order"
+            );
         }
 
         return orderMapper.toDto(order);

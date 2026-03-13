@@ -10,12 +10,6 @@ import roller.playground.dtos.CheckoutResponseDto;
 import roller.playground.dtos.ErrorDto;
 import roller.playground.excpetions.CartEmptyException;
 import roller.playground.excpetions.CartNotFoundException;
-import roller.playground.mappers.OrderMapper;
-import roller.playground.repositories.CartRepository;
-import roller.playground.repositories.OrderRepository;
-import roller.playground.repositories.UserRepository;
-import roller.playground.services.AuthService;
-import roller.playground.services.CartService;
 import roller.playground.services.CheckoutService;
 
 import java.util.HashMap;
@@ -25,12 +19,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/checkout")
 class CheckoutController {
-    private final CartRepository cartRepository;
-    private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
-    private final UserRepository userRepository;
-    private final AuthService authService;
-    private final CartService cartService;
     private final CheckoutService checkoutService;
 
     @PostMapping
@@ -43,9 +31,8 @@ class CheckoutController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException exception) {
         var errors = new HashMap<String, String>();
-        exception.getBindingResult().getFieldErrors().forEach((error) -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        exception.getBindingResult().getFieldErrors().forEach((error) ->
+                errors.put(error.getField(), error.getDefaultMessage()));
 
         return ResponseEntity.badRequest().body(errors);
     }
