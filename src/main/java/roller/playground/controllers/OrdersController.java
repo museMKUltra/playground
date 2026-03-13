@@ -19,10 +19,8 @@ class OrdersController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getOrders() {
-        var orders = orderService.getOrders();
-
-        return ResponseEntity.ok().body(orders);
+    public List<OrderDto> getOrders() {
+        return orderService.getOrders();
     }
 
     @GetMapping("/{id}")
